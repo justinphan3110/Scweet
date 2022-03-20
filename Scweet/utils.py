@@ -18,7 +18,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from . import const
 import urllib
-
+from fake_useragent import UserAgent
+from selenium.webdriver.common.by import By
 from .const import get_username, get_password, get_email
 
 
@@ -141,9 +142,18 @@ def init_driver(headless=True, proxy=None, show_images=False, option=None):
         options.add_experimental_option("prefs", prefs)
     if option is not None:
         options.add_argument(option)
-    driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
-    driver.set_page_load_timeout(100)
-    return driver
+
+    userAgent = UserAgent().random
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('-headless')
+    options.add_argument('-no-sandbox')
+    options.add_argument('-disable-dev-shm-usage')
+    options.add_argument(f'user-agent={userAgent}')
+
+    wd = webdriver.Chrome('chromedriver',options=options)
+    wd.set_page_load_timeout(100)
+    return wd
 
 
 def log_search_page(driver, since, until_local, lang, display_type, words, to_account, from_account, mention_account,
